@@ -38,6 +38,61 @@ $(function() {
 			recordingFees();
 			totalTitleFees();
 			estimatedPropertyTaxes();
+
+			matrixTitleInsurance();
+		}
+
+		var matrixTitleInsurance = function() {
+			arrayTitleInsurance = [];
+			loops = 11;
+
+			
+			function arrayBuilder(price, loan) {
+				console.warn('price: ' + price + ' | loan: ' + loan);
+				var tempArray = [];
+				var loopFrom, loopTo, loopMPol, loopOPol, loopIncrement = '';
+				var arrayFrom = ['0', '12000', '50000', '100000', '500000', '1000000', '2000000', '10000000', '15000000', '25000000', '35000000'];
+				var arrayTo = ['12000', '50000', '100000', '500000', '1000000', '2000000', '10000000', '15000000', '25000000', '35000000', '99000000'];
+				var arrayMPol = ['min. $100', '4.20', '3.60', '3.30', '2.70', '2.40', '2.10', '2.10', '1.80', '1.50', '1.20'];
+				var arrayOPol = ['min. $100', '5.40', '4.80', '4.50', '3.60', '3.00', '2.70', '2.40', '2.10', '1.80', '1.50'];
+
+				for (var i = 0; i < loops; i++) {
+					loopFrom = arrayFrom[i];
+					loopTo = arrayTo[i];
+					loopMPol = arrayMPol[i];
+					loopOPol = arrayOPol[i];
+
+					loopIncrement = function() {
+						if (price > arrayTo[i]) {
+							console.warn('i:' + i + ' | result: ' + (price > arrayTo[i]) + ' | price: ' + price + ' | arrayTo: ' + arrayTo[i]);
+							return arrayTo[i] - arrayFrom[i];
+						} else {
+							console.warn('i:' + i + ' | result: ' + (price > arrayTo[i]) + ' | price: ' + price + ' | arrayTo: ' + arrayTo[i]);
+							if (price < arrayFrom[i]) {
+								return 0;
+							} else {
+								return price - arrayFrom[i];
+							}
+						}
+					}
+
+					tempArray.push({
+						"Basis": price,
+						"From": loopFrom,
+						"To": loopTo,
+						"MPol": loopMPol,
+						"OPol": loopOPol,
+						"Increment": loopIncrement()
+					});
+				}
+				console.table(tempArray);
+			}
+			arrayBuilder(salesPrice, loanAmount);
+
+			// data[0] = { "ID": "1", "Status": "Valid" };
+			// data[1] = { "ID": "2", "Status": "Invalid" };
+
+			//arrayTitleInsurance.push(arrayDump);
 		}
 
 		var titleServices = function() {
@@ -90,6 +145,8 @@ $(function() {
 			if (transactionType == 'refinance') {
 				$('#advanced-owners-title-insurance').text('N/A');
 			} else {
+				//'Commerce Title'!F6
+
 				if (salesPrice == 0) {
 					$('#advanced-owners-title-insurance').text('0');
 				} else {
