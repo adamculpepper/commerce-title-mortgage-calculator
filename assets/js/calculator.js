@@ -50,17 +50,21 @@ $(function() {
 			function arrayBuilder(price, loan) {
 				console.warn('price: ' + price + ' | loan: ' + loan);
 				var tempArray = [];
-				var loopFrom, loopTo, loopMPol, loopOPol, loopIncrement = '';
+				var loopFrom, loopTo, loopMPol, loopOPol, loopIncrement, loopMtgPrem, loopOwnPrem = '';
 				var arrayFrom = ['0', '12000', '50000', '100000', '500000', '1000000', '2000000', '10000000', '15000000', '25000000', '35000000'];
 				var arrayTo = ['12000', '50000', '100000', '500000', '1000000', '2000000', '10000000', '15000000', '25000000', '35000000', '99000000'];
 				var arrayMPol = ['min. $100', '4.20', '3.60', '3.30', '2.70', '2.40', '2.10', '2.10', '1.80', '1.50', '1.20'];
 				var arrayOPol = ['min. $100', '5.40', '4.80', '4.50', '3.60', '3.00', '2.70', '2.40', '2.10', '1.80', '1.50'];
+				var arrayMmm = ['2.00', '2.00', '1.50', '1.00', '0.75', '0.50', '0.25', '0.25', '0.25', '0.25', '0.25'];
+				var arrayOmm = ['2.50', '2.50', '2.00', '1.50', '1.00', '0.75', '0.50', '0.50', '0.50', '0.50', '0.50'];
 
 				for (var i = 0; i < loops; i++) {
 					loopFrom = arrayFrom[i];
 					loopTo = arrayTo[i];
 					loopMPol = arrayMPol[i];
 					loopOPol = arrayOPol[i];
+					loopMmm = arrayMmm[i];
+					loopOmm = arrayOmm[i];
 
 					loopIncrement = function() {
 						if (price > arrayTo[i]) {
@@ -76,13 +80,42 @@ $(function() {
 						}
 					}
 
+					loopMtgPrem = function() {
+						if (loopIncrement != 0) {
+							if (arrayMPol[i] > 0) {
+								return loopIncrement() * arrayMPol[i] / 1000;
+							} else {
+								return 100;
+							}
+						} else {
+							return 0;
+						}
+					}
+
+					loopOwnPrem = function() {
+						if (loopIncrement != 0) {
+							if (arrayOPol[i] > 0) {
+								return loopIncrement() * arrayOPol[i] / 1000;
+							} else {
+								return 100;
+							}
+						} else {
+							return 0;
+						}
+					}
+
 					tempArray.push({
-						"Basis": price,
-						"From": loopFrom,
-						"To": loopTo,
-						"MPol": loopMPol,
-						"OPol": loopOPol,
-						"Increment": loopIncrement()
+						//'Basis': price,
+						'From': loopFrom,
+						'To': loopTo,
+						'MPol': loopMPol,
+						'OPol': loopOPol,
+						'Increment': loopIncrement(),
+						'MtgPrem': loopMtgPrem(),
+						'OwnPrem': loopOwnPrem(),
+						'MMM': loopMmm,
+						'OMM': loopOmm
+
 					});
 				}
 				console.table(tempArray);
