@@ -23,8 +23,8 @@ $(function() {
 	function updateValues() {
 		function initValues() {
 			transactionType = $('#transaction-type').val();
-			salesPrice = $('#sales-price').val();
-			loanAmount = $('#loan-amount').val();
+			salesPrice = parseInt($('#sales-price').val());
+			loanAmount = parseInt($('#loan-amount').val());
 			propertyParish = $('#property-parish').val();
 
 			if (transactionType == 'refinance') {
@@ -46,17 +46,21 @@ $(function() {
 			arrayTitleInsurance = [];
 			loops = 11;
 
-			
-			function arrayBuilder(price, loan) {
-				console.warn('price: ' + price + ' | loan: ' + loan);
+			function arrayBuilder(price) {
+				console.warn('price: ' + price);
 				var tempArray = [];
-				var loopFrom, loopTo, loopMPol, loopOPol, loopIncrement, loopMtgPrem, loopOwnPrem = '';
-				var arrayFrom = ['0', '12000', '50000', '100000', '500000', '1000000', '2000000', '10000000', '15000000', '25000000', '35000000'];
-				var arrayTo = ['12000', '50000', '100000', '500000', '1000000', '2000000', '10000000', '15000000', '25000000', '35000000', '99000000'];
-				var arrayMPol = ['min. $100', '4.20', '3.60', '3.30', '2.70', '2.40', '2.10', '2.10', '1.80', '1.50', '1.20'];
-				var arrayOPol = ['min. $100', '5.40', '4.80', '4.50', '3.60', '3.00', '2.70', '2.40', '2.10', '1.80', '1.50'];
-				var arrayMmm = ['2.00', '2.00', '1.50', '1.00', '0.75', '0.50', '0.25', '0.25', '0.25', '0.25', '0.25'];
-				var arrayOmm = ['2.50', '2.50', '2.00', '1.50', '1.00', '0.75', '0.50', '0.50', '0.50', '0.50', '0.50'];
+				var loopFrom, loopTo, loopMPol, loopOPol, loopIncrement, loopMtgPrem, loopOwnPrem;
+				var totalIncrement = 0;
+				var totalMtgPrem = 0;
+				var totalOwnPrem = 0;
+				var totalMtgM = 0;
+				var totalOwnM = 0;
+				var arrayFrom = [0, 12000, 50000, 100000, 500000, 1000000, 2000000, 10000000, 15000000, 25000000, 35000000];
+				var arrayTo = [12000, 50000, 100000, 500000, 1000000, 2000000, 10000000, 15000000, 25000000, 35000000, 99000000];
+				var arrayMPol = ['min. $100', 4.20, 3.60, 3.30, 2.70, 2.40, 2.10, 2.10, 1.80, 1.50, 1.20];
+				var arrayOPol = ['min. $100', 5.40, 4.80, 4.50, 3.60, 3.00, 2.70, 2.40, 2.10, 1.80, 1.50];
+				var arrayMmm = [2.00, 2.00, 1.50, 1.00, 0.75, 0.50, 0.25, 0.25, 0.25, 0.25, 0.25];
+				var arrayOmm = [2.50, 2.50, 2.00, 1.50, 1.00, 0.75, 0.50, 0.50, 0.50, 0.50, 0.50];
 
 				for (var i = 0; i < loops; i++) {
 					loopFrom = arrayFrom[i];
@@ -68,10 +72,10 @@ $(function() {
 
 					loopIncrement = function() {
 						if (price > arrayTo[i]) {
-							console.warn('i:' + i + ' | result: ' + (price > arrayTo[i]) + ' | price: ' + price + ' | arrayTo: ' + arrayTo[i]);
+							//console.warn('i:' + i + ' | result: ' + (price > arrayTo[i]) + ' | price: ' + price + ' | arrayTo: ' + arrayTo[i]);
 							return arrayTo[i] - arrayFrom[i];
 						} else {
-							console.warn('i:' + i + ' | result: ' + (price > arrayTo[i]) + ' | price: ' + price + ' | arrayTo: ' + arrayTo[i]);
+							//console.warn('i:' + i + ' | result: ' + (price > arrayTo[i]) + ' | price: ' + price + ' | arrayTo: ' + arrayTo[i]);
 							if (price < arrayFrom[i]) {
 								return 0;
 							} else {
@@ -104,6 +108,29 @@ $(function() {
 						}
 					}
 
+					loopMtgM = function() {
+						if (loopIncrement != 0) {
+							return loopIncrement() * arrayMmm[i] / 1000;
+						} else {
+							return 0;
+						}
+					}
+
+					loopOwnM = function() {
+						if (loopIncrement != 0) {
+							return loopIncrement() * arrayOmm[i] / 1000;
+						} else {
+							return 0;
+						}
+					}
+
+					//totals
+					totalIncrement += loopIncrement();
+					totalMtgPrem += loopMtgPrem();
+					totalOwnPrem += loopOwnPrem();
+					totalMtgM += loopMtgM();
+					totalOwnM += loopOwnM();
+
 					tempArray.push({
 						//'Basis': price,
 						'From': loopFrom,
@@ -114,18 +141,19 @@ $(function() {
 						'MtgPrem': loopMtgPrem(),
 						'OwnPrem': loopOwnPrem(),
 						'MMM': loopMmm,
-						'OMM': loopOmm
-
+						'OMM': loopOmm,
+						'MtgM': loopMtgM(),
+						'OwnM': loopOwnM()
 					});
 				}
 				console.table(tempArray);
+				console.warn('totalIncrement: ' + totalIncrement);
+				console.warn('totalMtgPrem: ' + totalMtgPrem);
+				console.warn('totalOwnPrem: ' + totalOwnPrem);
+				console.warn('totalMtgM: ' + totalMtgM);
+				console.warn('totalOwnM: ' + totalOwnM);
 			}
-			arrayBuilder(salesPrice, loanAmount);
-
-			// data[0] = { "ID": "1", "Status": "Valid" };
-			// data[1] = { "ID": "2", "Status": "Invalid" };
-
-			//arrayTitleInsurance.push(arrayDump);
+			arrayBuilder(salesPrice);
 		}
 
 		var titleServices = function() {
