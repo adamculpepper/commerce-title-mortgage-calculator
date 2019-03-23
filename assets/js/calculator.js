@@ -1,22 +1,21 @@
 $(function() {
-
 	var settlementFee = 0;
 	var abstractFee = 0;
 	var documentPreperation = 0;
-	//var totalTitleServices = 0;
-
 	var transactionType = '';
 	var salesPrice = 0;
 	var loanAmount = 0;
+	var salesPriceRoundedToNearestThousand = 0;
+	var loanAmountRoundedToNearestThousand = 0;
 	var propertyParish = '';
 
-	$('#updatable-inputs').on('keyup', 'input', function(e) {
+	$('#updatable-inputs').on('change', 'input, select', function(e) {
 		updateValues();
 	});
 
-	$('#updatable-inputs').on('change', 'select', function(e) {
-		updateValues();
-	});
+	function decimalCleaner(input) {
+		return parseFloat((input).toFixed(2));
+	}
 
 	updateValues();
 
@@ -25,6 +24,8 @@ $(function() {
 			transactionType = $('#transaction-type').val();
 			salesPrice = parseInt($('#sales-price').val());
 			loanAmount = parseInt($('#loan-amount').val());
+			salesPriceRoundedToNearestThousand = Math.ceil(salesPrice/1000)*1000; //rounded to the nearest thousand
+			loanAmountRoundedToNearestThousand = Math.ceil(loanAmount/1000)*1000; //rounded to the nearest thousand
 			propertyParish = $('#property-parish').val();
 
 			if (transactionType == 'refinance') {
@@ -43,11 +44,12 @@ $(function() {
 		}
 
 		var matrixTitleInsurance = function() {
-			arrayTitleInsurance = [];
-			loops = 11;
+			var miscValues = [];
+			var salesPriceTotalsArray = [];
+			var loanAmountTotalsArray = [];
 
-			function arrayBuilder(price) {
-				console.warn('price: ' + price);
+			function arrayBuilder(price, type) {
+				console.warn(type + ': ' + price);
 				var tempArray = [];
 				var loopFrom, loopTo, loopMPol, loopOPol, loopIncrement, loopMtgPrem, loopOwnPrem;
 				var totalIncrement = 0;
@@ -62,7 +64,7 @@ $(function() {
 				var arrayMmm = [2.00, 2.00, 1.50, 1.00, 0.75, 0.50, 0.25, 0.25, 0.25, 0.25, 0.25];
 				var arrayOmm = [2.50, 2.50, 2.00, 1.50, 1.00, 0.75, 0.50, 0.50, 0.50, 0.50, 0.50];
 
-				for (var i = 0; i < loops; i++) {
+				for (var i = 0; i < arrayFrom.length; i++) {
 					loopFrom = arrayFrom[i];
 					loopTo = arrayTo[i];
 					loopMPol = arrayMPol[i];
@@ -71,15 +73,21 @@ $(function() {
 					loopOmm = arrayOmm[i];
 
 					loopIncrement = function() {
-						if (price > arrayTo[i]) {
+						if (type == 'salesPrice') {
+							var number = salesPriceRoundedToNearestThousand;
+						} else if (type == 'loanAmount') {
+							var number = loanAmountRoundedToNearestThousand;
+						}
+
+						if (number > arrayTo[i]) {
 							//console.warn('i:' + i + ' | result: ' + (price > arrayTo[i]) + ' | price: ' + price + ' | arrayTo: ' + arrayTo[i]);
 							return arrayTo[i] - arrayFrom[i];
 						} else {
 							//console.warn('i:' + i + ' | result: ' + (price > arrayTo[i]) + ' | price: ' + price + ' | arrayTo: ' + arrayTo[i]);
-							if (price < arrayFrom[i]) {
+							if (number < arrayFrom[i]) {
 								return 0;
 							} else {
-								return price - arrayFrom[i];
+								return number - arrayFrom[i];
 							}
 						}
 					}
@@ -132,6 +140,7 @@ $(function() {
 					totalOwnM += loopOwnM();
 
 					tempArray.push({
+						'Type': (type == 'salesPrice' ? 'salesPrice': 'loanAmount'),
 						//'Basis': price,
 						'From': loopFrom,
 						'To': loopTo,
@@ -146,14 +155,53 @@ $(function() {
 						'OwnM': loopOwnM()
 					});
 				}
+
+				if (type == 'salesPrice') {
+					salesPriceTotalsArray.push({
+						'type': type,
+						'totalIncrement': decimalCleaner(totalIncrement),
+						'totalMtgPrem': decimalCleaner(totalMtgPrem),
+						'totalOwnPrem': decimalCleaner(totalOwnPrem),
+						'totalMtgM': decimalCleaner(totalMtgM),
+						'totalOwnM': decimalCleaner(totalOwnM)
+					});
+				} else if (type == 'loanAmount') {
+					loanAmountTotalsArray.push({
+						'type': type,
+						'totalIncrement': decimalCleaner(totalIncrement),
+						'totalMtgPrem': decimalCleaner(totalMtgPrem),
+						'totalOwnPrem': decimalCleaner(totalOwnPrem),
+						'totalMtgM': decimalCleaner(totalMtgM),
+						'totalOwnM': decimalCleaner(totalOwnM)
+					}); 
+				}
+
+				console.log(type);
 				console.table(tempArray);
-				console.warn('totalIncrement: ' + totalIncrement);
-				console.warn('totalMtgPrem: ' + totalMtgPrem);
-				console.warn('totalOwnPrem: ' + totalOwnPrem);
-				console.warn('totalMtgM: ' + totalMtgM);
-				console.warn('totalOwnM: ' + totalOwnM);
 			}
-			arrayBuilder(salesPrice);
+			arrayBuilder(salesPrice, 'salesPrice');
+			arrayBuilder(loanAmount, 'loanAmount');
+
+			console.table(salesPriceTotalsArray);
+			console.table(loanAmountTotalsArray);
+
+			miscValues.push({
+				'ownLimit': salesPriceRoundedToNearestThousand,
+				'ownPrem': salesPriceTotalsArray[0].totalOwnPrem,
+				'ownSurcharge': decimalCleaner(salesPriceTotalsArray[0].totalOwnPrem*0.1),
+				'ownSiFee': 100,
+				'ownTotal': decimalCleaner(salesPriceTotalsArray[0].totalOwnPrem + decimalCleaner(salesPriceTotalsArray[0].totalOwnPrem*0.1) + 100),
+				'ownOnly': decimalCleaner(salesPriceTotalsArray[0].totalOwnPrem + decimalCleaner(salesPriceTotalsArray[0].totalOwnPrem*0.1)),
+
+				'mtgLimit': loanAmountRoundedToNearestThousand,
+				'mtgPrem': loanAmountTotalsArray[0].totalMtgPrem,
+				'mtgExcess': totalOwnPrem,
+				'mtg10PercentOfPrem': totalMtgM,
+				'mtgExtra1': totalOwnM,
+				'mtgExtra2': totalOwnM,
+				'mtgLoanOnly': totalOwnM
+			});
+			console.table(miscValues);
 		}
 
 		var titleServices = function() {
