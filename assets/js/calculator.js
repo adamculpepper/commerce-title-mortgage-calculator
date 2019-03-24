@@ -24,8 +24,8 @@ $(function() {
 			transactionType = $('#transaction-type').val();
 			salesPrice = parseInt($('#sales-price').val());
 			loanAmount = parseInt($('#loan-amount').val());
-			salesPriceRoundedToNearestThousand = Math.ceil(salesPrice/1000)*1000; //rounded to the nearest thousand
-			loanAmountRoundedToNearestThousand = Math.ceil(loanAmount/1000)*1000; //rounded to the nearest thousand
+			salesPriceRoundedToNearestThousand = Math.ceil(salesPrice / 1000) * 1000; //rounded to the nearest thousand
+			loanAmountRoundedToNearestThousand = Math.ceil(loanAmount / 1000) * 1000; //rounded to the nearest thousand
 			propertyParish = $('#property-parish').val();
 
 			if (transactionType == 'refinance') {
@@ -34,17 +34,20 @@ $(function() {
 				$('#label-sales-price-or-current-payoff').text('Sales Price');
 			}
 
+			matrixTitleInsurance();
+			
 			titleServices();
 			titleInsurance();
 			recordingFees();
 			totalTitleFees();
 			estimatedPropertyTaxes();
 
-			matrixTitleInsurance();
+			
 		}
 
+var miscValues = [];
+
 		var matrixTitleInsurance = function() {
-			var miscValues = [];
 			var salesPriceTotalsArray = [];
 			var loanAmountTotalsArray = [];
 
@@ -185,22 +188,41 @@ $(function() {
 			console.table(salesPriceTotalsArray);
 			console.table(loanAmountTotalsArray);
 
+			var ownPrem = salesPriceTotalsArray[0].totalOwnPrem;
+			var ownSurcharge = decimalCleaner(ownPrem * 0.1);
+			var ownSiFee = 100;
+			var ownTotal = decimalCleaner(ownPrem + ownSurcharge + ownSiFee);
+			var ownOnly = decimalCleaner(ownPrem + ownSurcharge);
+			var mtgPrem = loanAmountTotalsArray[0].totalMtgPrem;
+			var mtgExcess = function() {
+				if (loanAmountTotalsArray[0].totalMtgPrem > salesPriceTotalsArray[0].totalMtgPrem) {
+					return loanAmountTotalsArray[0].totalMtgPrem - salesPriceTotalsArray[0].totalMtgPrem;
+				} else {
+					return 0;
+				}
+			}
+			var mtg10PercentOfPrem = loanAmountTotalsArray[0].totalMtgPrem * 0.1;
+			var mtgLoanOnly = mtgPrem;
+			var mtgExtra1 = ownTotal - mtgPrem + mtgExcess();
+			var mtgExtra2 = ownTotal - mtgLoanOnly;
+
 			miscValues.push({
 				'ownLimit': salesPriceRoundedToNearestThousand,
-				'ownPrem': salesPriceTotalsArray[0].totalOwnPrem,
-				'ownSurcharge': decimalCleaner(salesPriceTotalsArray[0].totalOwnPrem*0.1),
-				'ownSiFee': 100,
-				'ownTotal': decimalCleaner(salesPriceTotalsArray[0].totalOwnPrem + decimalCleaner(salesPriceTotalsArray[0].totalOwnPrem*0.1) + 100),
-				'ownOnly': decimalCleaner(salesPriceTotalsArray[0].totalOwnPrem + decimalCleaner(salesPriceTotalsArray[0].totalOwnPrem*0.1)),
+				'ownPrem': ownPrem,
+				'ownSurcharge': ownSurcharge,
+				'ownSiFee': ownSiFee,
+				'ownTotal': ownTotal,
+				'ownOnly': ownOnly,
 
 				'mtgLimit': loanAmountRoundedToNearestThousand,
-				'mtgPrem': loanAmountTotalsArray[0].totalMtgPrem,
-				'mtgExcess': totalOwnPrem,
-				'mtg10PercentOfPrem': totalMtgM,
-				'mtgExtra1': totalOwnM,
-				'mtgExtra2': totalOwnM,
-				'mtgLoanOnly': totalOwnM
+				'mtgPrem': mtgPrem,
+				'mtgExcess': mtgExcess(),
+				'mtg10PercentOfPrem': mtg10PercentOfPrem,
+				'mtgLoanOnly': mtgLoanOnly,
+				'mtgExtra1': mtgExtra1,
+				'mtgExtra2': mtgExtra2
 			});
+
 			console.table(miscValues);
 		}
 
@@ -254,15 +276,13 @@ $(function() {
 			if (transactionType == 'refinance') {
 				$('#advanced-owners-title-insurance').text('N/A');
 			} else {
-				//'Commerce Title'!F6
-
 				if (salesPrice == 0) {
 					$('#advanced-owners-title-insurance').text('0');
 				} else {
 					if (loanAmount == 0) {
-						$('#advanced-owners-title-insurance').text('847.22');
+						$('#advanced-owners-title-insurance').text(decimalCleaner(miscValues[0].ownOnly)); //Title Insurance'!B6
 					} else {
-						$('#advanced-owners-title-insurance').text('425.12');
+						$('#advanced-owners-title-insurance').text(decimalCleaner(miscValues[0].mtgExtra1)); //Title Insurance'!B12
 					}
 				}
 			}
