@@ -41,11 +41,9 @@ $(function() {
 			recordingFees();
 			totalTitleFees();
 			estimatedPropertyTaxes();
-
-			
 		}
 
-var miscValues = [];
+	var miscValues = [];
 
 		var matrixTitleInsurance = function() {
 			var salesPriceTotalsArray = [];
@@ -141,6 +139,8 @@ var miscValues = [];
 					totalOwnPrem += loopOwnPrem();
 					totalMtgM += loopMtgM();
 					totalOwnM += loopOwnM();
+					//totalUnknown1 += totalUnknownPercentage(); //
+					//totalUnknown2 += totalUnknownPercentage();
 
 					tempArray.push({
 						'Type': (type == 'salesPrice' ? 'salesPrice': 'loanAmount'),
@@ -175,8 +175,10 @@ var miscValues = [];
 						'totalMtgPrem': decimalCleaner(totalMtgPrem),
 						'totalOwnPrem': decimalCleaner(totalOwnPrem),
 						'totalMtgM': decimalCleaner(totalMtgM),
-						'totalOwnM': decimalCleaner(totalOwnM)
-					}); 
+						'totalOwnM': decimalCleaner(totalOwnM),
+						//'unknown1': decimalCleaner(totalUnknown1), //Reissue Rates (tab) > unknown column 1
+						//'unknown2': decimalCleaner(totalUnknown2) //Reissue Rates (tab) > unknown column 2
+					});
 				}
 
 				console.log(type);
@@ -184,9 +186,15 @@ var miscValues = [];
 			}
 			arrayBuilder(salesPrice, 'salesPrice');
 			arrayBuilder(loanAmount, 'loanAmount');
+			//arrayBuilder(loanPolicy, 'loanPolicy');
+			//arrayBuilder(newLoan, 'newLoan');
+			//arrayBuilder(loanPayoff, 'loanPayoff');
 
 			console.table(salesPriceTotalsArray);
 			console.table(loanAmountTotalsArray);
+			//console.table(loanPolicyTotalsArray);
+			//console.table(newLoanTotalsArray);
+			//console.table(loanPayoffTotalsArray);
 
 			var ownPrem = salesPriceTotalsArray[0].totalOwnPrem;
 			var ownSurcharge = decimalCleaner(ownPrem * 0.1);
