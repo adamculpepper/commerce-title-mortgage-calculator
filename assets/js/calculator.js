@@ -1,3 +1,6 @@
+// Commerce Title - Mortagage Calculator
+// Developer: Adam Culpepper
+
 $(function() {
 	var settlementFee = 0;
 	var abstractFee = 0;
@@ -8,6 +11,7 @@ $(function() {
 	var salesPriceRoundedToNearestThousand = 0;
 	var loanAmountRoundedToNearestThousand = 0;
 	var propertyParish = '';
+	var totalMtgPrem = 0;
 
 	$('#updatable-inputs').on('change', 'input, select', function(e) {
 		updateValues();
@@ -58,6 +62,8 @@ $(function() {
 				var totalOwnPrem = 0;
 				var totalMtgM = 0;
 				var totalOwnM = 0;
+				var totalUnknown1 = 0;
+				var totalUnknown2 = 0;
 				var arrayFrom = [0, 12000, 50000, 100000, 500000, 1000000, 2000000, 10000000, 15000000, 25000000, 35000000];
 				var arrayTo = [12000, 50000, 100000, 500000, 1000000, 2000000, 10000000, 15000000, 25000000, 35000000, 99000000];
 				var arrayMPol = ['min. $100', 4.20, 3.60, 3.30, 2.70, 2.40, 2.10, 2.10, 1.80, 1.50, 1.20];
@@ -133,14 +139,39 @@ $(function() {
 						}
 					}
 
+					loopUnknown1 = function() {
+						if (loopIncrement() == 0) {
+							return 0;
+						} else {
+							if (loopIncrement() <= salesPrice) {
+								return 0.6;
+							} else {
+								return 1;
+							}						
+						}
+					}
+
+					loopUnknown2 = function() {
+						if (loopUnknown1() == 1) {
+							return 0;
+						} else {
+							
+							var a = loopMtgPrem();
+							var b = loopUnknown1();
+							return loopMtgPrem() * loopUnknown1();
+						}
+					}
+
+					//debugger;
+
 					//totals
 					totalIncrement += loopIncrement();
 					totalMtgPrem += loopMtgPrem();
 					totalOwnPrem += loopOwnPrem();
 					totalMtgM += loopMtgM();
 					totalOwnM += loopOwnM();
-					//totalUnknown1 += totalUnknownPercentage(); //
-					//totalUnknown2 += totalUnknownPercentage();
+					totalUnknown1 += loopUnknown1(); //percentage
+					totalUnknown2 += loopUnknown2(); //dollar value
 
 					tempArray.push({
 						'Type': (type == 'salesPrice' ? 'salesPrice': 'loanAmount'),
@@ -155,7 +186,9 @@ $(function() {
 						'MMM': loopMmm,
 						'OMM': loopOmm,
 						'MtgM': loopMtgM(),
-						'OwnM': loopOwnM()
+						'OwnM': loopOwnM(),
+						'Unknown1': loopUnknown1(),
+						'Unknown2': decimalCleaner(loopUnknown2())
 					});
 				}
 
@@ -176,8 +209,8 @@ $(function() {
 						'totalOwnPrem': decimalCleaner(totalOwnPrem),
 						'totalMtgM': decimalCleaner(totalMtgM),
 						'totalOwnM': decimalCleaner(totalOwnM),
-						//'unknown1': decimalCleaner(totalUnknown1), //Reissue Rates (tab) > unknown column 1
-						//'unknown2': decimalCleaner(totalUnknown2) //Reissue Rates (tab) > unknown column 2
+						//'totalUnknown1': decimalCleaner(totalUnknown1), //Reissue Rates (tab) > unknown column 1
+						'totalUnknown2': decimalCleaner(totalUnknown2) //Reissue Rates (tab) > unknown column 2
 					});
 				}
 
@@ -228,9 +261,14 @@ $(function() {
 				'mtg10PercentOfPrem': mtg10PercentOfPrem,
 				'mtgLoanOnly': mtgLoanOnly,
 				'mtgExtra1': mtgExtra1,
-				'mtgExtra2': mtgExtra2
+				'mtgExtra2': mtgExtra2,
+
+				'newLoanPremium': mtgPrem, //duplicate from above
+				'loanPayoffCredit': 0,
+				'reissuePremium': 0
 			});
 
+			console.warn('miscValues');
 			console.table(miscValues);
 		}
 
@@ -276,7 +314,7 @@ $(function() {
 				if (loanAmount == 0) {
 					$('#lenders-title-insurance').text('0');
 				} else {
-					$('#lenders-title-insurance').text('522.10');
+					$('#lenders-title-insurance').text(miscValues[0].newLoanPremium);
 				}
 			}
 
@@ -385,17 +423,17 @@ $(function() {
 		var estimatedPropertyTaxes = function() {
 			//Estimated Property Taxes
 			if (propertyParish == 'ebr') {
-				$('#all-other-parishes-with-homestead-exception').text('900.00');
-				$('#all-other-parishes-without-homestead-exception').text('1800.00');
+				$('#all-other-parishes-with-homestead-exception').text( decimalCleaner((salesPrice-75000) * 0.0120) );
+				$('#all-other-parishes-without-homestead-exception').text( decimalCleaner(salesPrice * 0.0120) );
 			} else if (propertyParish == 'ascension') {
-				$('#all-other-parishes-with-homestead-exception').text('862.50');
-				$('#all-other-parishes-without-homestead-exception').text('1725.00');
+				$('#all-other-parishes-with-homestead-exception').text( decimalCleaner((salesPrice-75000) * 0.0115) );
+				$('#all-other-parishes-without-homestead-exception').text( decimalCleaner(salesPrice * 0.0115) );
 			} else if (propertyParish == 'livingston') {
-				$('#all-other-parishes-with-homestead-exception').text('922.50');
-				$('#all-other-parishes-without-homestead-exception').text('1845.00');
+				$('#all-other-parishes-with-homestead-exception').text( decimalCleaner((salesPrice-75000) * 0.0123) );
+				$('#all-other-parishes-without-homestead-exception').text( decimalCleaner(salesPrice * 0.0123) );
 			} else if (propertyParish == 'all') {
-				$('#all-other-parishes-with-homestead-exception').text('895.00');
-				$('#all-other-parishes-without-homestead-exception').text('1790.00');
+				$('#all-other-parishes-with-homestead-exception').text( decimalCleaner((salesPrice-75000) * 0.01193333333) );
+				$('#all-other-parishes-without-homestead-exception').text( decimalCleaner(salesPrice * 0.01193333333) );
 			}
 		}
 
