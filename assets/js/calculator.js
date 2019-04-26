@@ -11,7 +11,7 @@ $(function() {
 	var salesPriceRoundedToNearestThousand = 0;
 	var loanAmountRoundedToNearestThousand = 0;
 	var propertyParish = '';
-	var totalMtgPrem = 0;
+	//var totalMtgPrem = 0;
 
 	$('#updatable-inputs').on('change', 'input, select', function(e) {
 		updateValues();
@@ -47,7 +47,7 @@ $(function() {
 			estimatedPropertyTaxes();
 		}
 
-	var miscValues = [];
+		var miscValues = [];
 
 		var matrixTitleInsurance = function() {
 			var salesPriceTotalsArray = [];
@@ -162,16 +162,14 @@ $(function() {
 						}
 					}
 
-					//debugger;
-
 					//totals
 					totalIncrement += loopIncrement();
 					totalMtgPrem += loopMtgPrem();
 					totalOwnPrem += loopOwnPrem();
 					totalMtgM += loopMtgM();
 					totalOwnM += loopOwnM();
-					totalUnknown1 += loopUnknown1(); //percentage
-					totalUnknown2 += loopUnknown2(); //dollar value
+					totalUnknown1 += loopUnknown1(); //unknown percentage
+					totalUnknown2 += loopUnknown2(); //unknown dollar value
 
 					tempArray.push({
 						'Type': (type == 'salesPrice' ? 'salesPrice': 'loanAmount'),
@@ -441,9 +439,6 @@ $(function() {
 	}
 
 });
-
-
-
 
 
 
