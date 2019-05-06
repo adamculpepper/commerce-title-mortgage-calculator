@@ -14,7 +14,13 @@ $(function() {
 	//var totalMtgPrem = 0;
 
 	$('#updatable-inputs').on('change', 'input, select', function(e) {
-		updateValues();
+		if ($('#loan-amount').val() == '') {
+			$('#loan-amount').val(0);
+		}
+		
+		if ($('#sales-price').val() && $('#loan-amount').val()) {
+			updateValues();
+		}
 	});
 
 	function decimalCleaner(input) {
