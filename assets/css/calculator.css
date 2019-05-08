@@ -1,2 +1,8 @@
 body {background:#ddd;}
 .red {background:lightsalmon;}
+.green {background:lightgreen;}
+.blue {background:lightblue;}
+
+.value .number {display:inline-block; position:relative; text-align:right;}
+/*.value .number .symbol {float:left; position:absolute; left:-10px;}*/
+.value .number .symbol {margin-right:10px;}

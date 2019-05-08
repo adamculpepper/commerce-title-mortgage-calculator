@@ -24,7 +24,33 @@ $(function() {
 	});
 
 	function decimalCleaner(input) {
-		return parseFloat((input).toFixed(2));
+		//debugger;
+		return parseFloat(input).toFixed(2);
+	}
+
+	function currencyFormatter(input) {
+		var output = parseFloat(input);
+		output = decimalCleaner(output);
+		return '<span class="number"><span class="symbol">$</span>' + output + '</span>';
+	}
+
+	function numberCleaner() {
+		setTimeout(function() {
+			var textValue;
+			var maxWidth = 0;
+			var thisWidth = 0;
+			$('.value').each(function() {
+				textValue = $(this).text();
+				$(this).html(currencyFormatter(textValue));
+				//$(this).css({'background': 'lightblue'});
+
+				// thisWidth = $(this).find('.number').width() + 1;
+				// if (thisWidth > maxWidth) {
+				// 	maxWidth = thisWidth;
+				// }
+			});
+			//$('.value').find('.number').width(maxWidth);
+		}, 0);
 	}
 
 	updateValues();
@@ -449,21 +475,7 @@ $(function() {
 		}
 
 		initValues();
+		numberCleaner();
 	}
 
 });
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
