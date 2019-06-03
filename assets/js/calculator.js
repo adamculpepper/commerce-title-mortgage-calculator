@@ -22,6 +22,8 @@ $(function() {
 		if ($('#sales-price').val() && $('#loan-amount').val()) {
 			updateValues();
 		}
+
+		$('.parish-selected').text($('#property-parish option:selected').text());
 	});
 
 	function decimalCleaner(input) {
@@ -31,7 +33,10 @@ $(function() {
 	function currencyFormatter(input) {
 		var output = parseFloat(input);
 		output = decimalCleaner(output);
-		return '<span class="number"><span class="symbol">$</span>' + output + '</span>';
+
+		if (!input.includes('Included')) {
+			return '<span class="number"><span class="symbol">$</span>' + output + '</span>';
+		}
 	}
 
 	function numberCleaner() {
@@ -70,6 +75,13 @@ $(function() {
 				$('#label-sales-price-or-current-payoff').text('Current Payoff');
 			} else {
 				$('#label-sales-price-or-current-payoff').text('Sales Price');
+			}
+
+			if (transactionType == 'cash') {
+				$('#loan-amount').val('0');
+				$('#loan-amount').prop('disabled', true);
+			} else {
+				$('#loan-amount').prop('disabled', false);
 			}
 
 			matrixTitleInsurance();
