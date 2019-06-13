@@ -410,7 +410,7 @@ $(function() {
 				$('#alta-8-1-endorsement').text('50');
 
 				var tenPercentPrem = miscValues[0].mtgPrem * 0.1;
-				if ((tenPercentPrem * 0.1) < 150) {
+				if (tenPercentPrem < 150) {
 					$('#alta-9-endorsement').text('150');
 				} else {
 					$('#alta-9-endorsement').text(tenPercentPrem);
