@@ -27,15 +27,12 @@ $(function() {
 	});
 
 	function decimalCleaner(input) {
-		return parseFloat(input).toFixed(2);
+		return parseFloat(input.toFixed(2));
 	}
 
 	function currencyFormatter(input) {
-		var output = parseFloat(input);
-		output = decimalCleaner(output);
-
 		if (!input.includes('Included')) {
-			return '<span class="number"><span class="symbol">$</span>' + output + '</span>';
+			return '<span class="number"><span class="symbol">$</span>' + parseFloat(input).toFixed(2) + '</span>';
 		}
 	}
 
@@ -104,7 +101,7 @@ $(function() {
 					console.warn(type + ': ' + price);
 				}
 				var tempArray = [];
-				var loopFrom, loopTo, loopMPol, loopOPol, loopIncrement, loopMtgPrem, loopOwnPrem;
+				var loopFrom, loopTo, loopMPol, loopOPol, loopMmm, loopOmm, loopIncrement, loopMtgPrem, loopOwnPrem;
 				var totalIncrement = 0;
 				var totalMtgPrem = 0;
 				var totalOwnPrem = 0;
@@ -134,6 +131,10 @@ $(function() {
 							var number = loanAmountRoundedToNearestThousand;
 						}
 
+						if (typeof arrayOPol[i] != "number") {
+							arrayOPol[i] = 0;
+						}
+
 						if (number > arrayTo[i]) {
 							//console.warn('i:' + i + ' | result: ' + (price > arrayTo[i]) + ' | price: ' + price + ' | arrayTo: ' + arrayTo[i]);
 							return arrayTo[i] - arrayFrom[i];
@@ -160,6 +161,10 @@ $(function() {
 					}
 
 					loopOwnPrem = function() {
+						if (typeof arrayOPol[i] != "number") {
+							arrayOPol[i] = 0;
+						}
+
 						if (loopIncrement != 0) {
 							if (arrayOPol[i] > 0) {
 								return loopIncrement() * arrayOPol[i] / 1000;
@@ -211,9 +216,6 @@ $(function() {
 						if (loopUnknown1() == 1) {
 							return 0;
 						} else {
-							
-							var a = loopMtgPrem();
-							var b = loopUnknown1();
 							return loopMtgPrem() * loopUnknown1();
 						}
 					}
@@ -298,18 +300,18 @@ $(function() {
 			var mtgPrem = decimalCleaner(loanAmountTotalsArray[0].totalMtgPrem);
 			var mtgExcess = function() {
 				if (loanAmountTotalsArray[0].totalMtgPrem > salesPriceTotalsArray[0].totalMtgPrem) {
-					return loanAmountTotalsArray[0].totalMtgPrem - salesPriceTotalsArray[0].totalMtgPrem;
+					return decimalCleaner(loanAmountTotalsArray[0].totalMtgPrem - salesPriceTotalsArray[0].totalMtgPrem);
 				} else {
 					return 0;
 				}
 			}
-			var mtg10PercentOfPrem = loanAmountTotalsArray[0].totalMtgPrem * 0.1;
+			var mtg10PercentOfPrem = decimalCleaner(loanAmountTotalsArray[0].totalMtgPrem * 0.1);
 			var mtgLoanOnly = mtgPrem;
 			var mtgExtra1 = ownTotal - mtgPrem + mtgExcess();
 			var mtgExtra2 = ownTotal - mtgLoanOnly;
 
-			var loanPayoffCredit = parseFloat(decimalCleaner(salesPriceTotalsArray[0].totalMtgPrem * 0.4));
-			var reissuePremium = parseFloat(mtgPrem - loanPayoffCredit);
+			var loanPayoffCredit = decimalCleaner(salesPriceTotalsArray[0].totalMtgPrem * 0.4);
+			var reissuePremium = decimalCleaner(mtgPrem - loanPayoffCredit);
 
 			miscValues.push({
 				'ownLimit': salesPriceRoundedToNearestThousand,
