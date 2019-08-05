@@ -512,6 +512,14 @@ $(function() {
 				$('#all-other-parishes-with-homestead-exception').text( decimalCleaner((salesPrice-75000) * 0.01193333333) );
 				$('#all-other-parishes-without-homestead-exception').text( decimalCleaner(salesPrice * 0.01193333333) );
 			}
+
+			if ($('#all-other-parishes-with-homestead-exception').text() < 0) {
+				$('#all-other-parishes-with-homestead-exception').text(0);
+			}
+
+			if ($('#all-other-parishes-without-homestead-exception').text() < 0) {
+				$('#all-other-parishes-without-homestead-exception').text(0);
+			}
 		}
 
 		initValues();
