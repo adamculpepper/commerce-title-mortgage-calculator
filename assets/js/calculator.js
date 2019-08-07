@@ -82,7 +82,6 @@ $(function() {
 			}
 
 			matrixTitleInsurance();
-			
 			titleServices();
 			titleInsurance();
 			recordingFees();
@@ -378,8 +377,14 @@ $(function() {
 				if (salesPrice > loanAmount) {
 					$('#lenders-title-insurance').text(miscValues[0].totalUnknown2);
 				} else {
-					$('#lenders-title-insurance').text(miscValues[0].reissuePremium);
+					$('#lenders-title-insurance').text(miscValues[0].mtgPrem); //previously miscValues[0].reissuePremium
 				}
+
+				// var a = miscValues[0].totalUnknown2;
+				// var b = miscValues[0].reissuePremium;
+				// var c = miscValues[0].mtgPrem;
+				// debugger;
+
 			} else if (transactionType == 'purchase') {
 				if (loanAmount == 0) {
 					$('#lenders-title-insurance').text('0');
