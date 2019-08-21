@@ -525,6 +525,11 @@ $(function() {
 			if ($('#all-other-parishes-without-homestead-exception').text() < 0) {
 				$('#all-other-parishes-without-homestead-exception').text(0);
 			}
+
+			if (transactionType == 'refinance') {
+				$('#all-other-parishes-with-homestead-exception').text('N/A');
+				$('#all-other-parishes-without-homestead-exception').text('N/A');
+			}
 		}
 
 		initValues();
