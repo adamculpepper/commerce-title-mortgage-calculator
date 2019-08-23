@@ -374,15 +374,17 @@ $(function() {
 			if (transactionType == 'cash') {
 				$('#lenders-title-insurance').text('N/A');
 			} else if (transactionType == 'refinance') {
-				if (salesPrice > loanAmount) {
-					$('#lenders-title-insurance').text(miscValues[0].totalUnknown2);
-				} else {
+				if (salesPrice == 0) {
 					$('#lenders-title-insurance').text(miscValues[0].mtgPrem); //previously miscValues[0].reissuePremium
+				} else if (salesPrice > loanAmount) {
+					$('#lenders-title-insurance').text(miscValues[0].totalUnknown2);
+				} else if (salesPrice < loanAmount) {
+					$('#lenders-title-insurance').text(miscValues[0].reissuePremium);			
 				}
 
-				// var a = miscValues[0].totalUnknown2;
-				// var b = miscValues[0].reissuePremium;
-				// var c = miscValues[0].mtgPrem;
+				// var a = miscValues[0].mtgPrem;
+				// var b = miscValues[0].totalUnknown2;
+				// var c = miscValues[0].reissuePremium;
 				// debugger;
 
 			} else if (transactionType == 'purchase') {
