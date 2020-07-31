@@ -343,15 +343,15 @@ $(function() {
 
 		var titleServices = function() {
 			if (transactionType == 'purchase') {
-				settlementFee = 395;
-				abstractFee = 220;
-				documentPreperation = 235;
+				settlementFee = 415;
+				abstractFee = 300;
+				documentPreperation = 285;
 			} else if (transactionType == 'refinance') {
-				settlementFee = 395;
-				abstractFee = 130;
-				documentPreperation = 235;
+				settlementFee = 415;
+				abstractFee = 210;
+				documentPreperation = 285;
 			} else if (transactionType == 'cash') {
-				settlementFee = 635;
+				settlementFee = 785;
 				abstractFee = '<i>Included</i>';
 				documentPreperation = '<i>Included</i>';
 			} else {
