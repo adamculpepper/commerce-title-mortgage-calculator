@@ -495,11 +495,13 @@ $(function() {
 			var totalTitleInsurance = parseFloat($('#total-title-insurance').text());
 			var totalRecordingFees = parseFloat($('#total-recording-fees').text());
 
-			if (propertyParish == 'all') {
-				var totalTitleFees = totalTitleServices + totalTitleInsurance;
-			} else {
+			// update per Katie on 8/22/2023
+			// Katie: When “All Other” is selected as the “Property Parish”,  the “Recording Fees” are not calculated into the total.
+			// if (propertyParish == 'all') {
+			// 	var totalTitleFees = totalTitleServices + totalTitleInsurance;
+			// } else {
 				var totalTitleFees = totalTitleServices + totalTitleInsurance + totalRecordingFees;
-			}
+			// }
 
 			$('#total-title-fees').text(totalTitleFees.toFixed(2));
 		}
